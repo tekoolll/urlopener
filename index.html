@@ -16,48 +16,52 @@ font-family:"Inter",sans-serif;
 body{
 margin:0;
 height:100vh;
+overflow:hidden;
+background:#0f172a;
 display:flex;
-justify-content:center;
 align-items:center;
-background:linear-gradient(-45deg,#1e3c72,#2a5298,#141e30,#243b55);
-background-size:400% 400%;
-animation:bg 15s ease infinite;
+justify-content:center;
 color:white;
 }
 
-@keyframes bg{
-0%{background-position:0% 50%}
-50%{background-position:100% 50%}
-100%{background-position:0% 50%}
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:0;
 }
 
 .container{
-backdrop-filter:blur(20px);
-background:rgba(255,255,255,.05);
-border:1px solid rgba(255,255,255,.1);
-border-radius:18px;
-padding:40px;
+position:relative;
+z-index:1;
 width:420px;
-box-shadow:0 20px 60px rgba(0,0,0,.4);
+padding:40px;
+border-radius:20px;
+
+background:rgba(255,255,255,.05);
+backdrop-filter:blur(20px);
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
 
 h1{
-margin-top:0;
-font-weight:600;
+margin:0 0 25px 0;
 font-size:26px;
 text-align:center;
-margin-bottom:25px;
 }
 
 input{
 width:100%;
-padding:14px;
-border-radius:10px;
+padding:15px;
+border-radius:12px;
 border:none;
 outline:none;
-background:rgba(255,255,255,.08);
+
+background:rgba(255,255,255,.07);
 color:white;
 font-size:15px;
+
 transition:.25s;
 }
 
@@ -66,17 +70,31 @@ background:rgba(255,255,255,.12);
 }
 
 .options{
-margin-top:18px;
+margin-top:20px;
 display:flex;
-gap:20px;
-font-size:14px;
+gap:15px;
 }
 
-label{
-display:flex;
-align-items:center;
-gap:6px;
+.option{
+flex:1;
+padding:14px;
+border-radius:12px;
+text-align:center;
 cursor:pointer;
+
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.1);
+
+transition:.25s;
+}
+
+.option.active{
+background:linear-gradient(135deg,#00c6ff,#0072ff);
+border:none;
+}
+
+.option:hover{
+transform:translateY(-2px);
 }
 
 button{
@@ -84,22 +102,20 @@ margin-top:25px;
 width:100%;
 padding:14px;
 border:none;
-border-radius:10px;
-background:linear-gradient(135deg,#00c6ff,#0072ff);
+border-radius:12px;
+
+background:linear-gradient(135deg,#7c3aed,#4f46e5);
 color:white;
 font-size:15px;
 font-weight:500;
+
 cursor:pointer;
 transition:.25s;
 }
 
 button:hover{
 transform:translateY(-2px);
-box-shadow:0 8px 20px rgba(0,114,255,.5);
-}
-
-button:active{
-transform:translateY(0);
+box-shadow:0 10px 25px rgba(124,58,237,.6);
 }
 
 .footer{
@@ -114,23 +130,23 @@ opacity:.6;
 
 <body>
 
+<canvas id="bg"></canvas>
+
 <div class="container">
 
 <h1>Open a Link</h1>
 
-<input id="urlInput" placeholder="https://example.com">
+<input id="urlInput" placeholder="">
 
 <div class="options">
 
-<label>
-<input type="radio" name="mode" value="newtab" checked>
+<div class="option active" data-mode="newtab">
 New Tab
-</label>
+</div>
 
-<label>
-<input type="radio" name="mode" value="same">
+<div class="option" data-mode="same">
 Same Window
-</label>
+</div>
 
 </div>
 
@@ -142,10 +158,24 @@ Same Window
 
 <script>
 
+/* mode toggle */
+
+let mode="newtab"
+
+document.querySelectorAll(".option").forEach(option=>{
+option.onclick=()=>{
+document.querySelectorAll(".option").forEach(o=>o.classList.remove("active"))
+option.classList.add("active")
+mode=option.dataset.mode
+}
+})
+
+/* open link */
+
 function openLink(){
 
-let url=document.getElementById("urlInput").value.trim()
-let mode=document.querySelector('input[name="mode"]:checked').value
+let input=document.getElementById("urlInput")
+let url=input.value.trim()
 
 if(url==="") return
 
@@ -161,11 +191,116 @@ window.location.href=url
 
 }
 
-document.getElementById("urlInput").addEventListener("keydown",function(e){
-if(e.key==="Enter"){
-openLink()
-}
+document.getElementById("urlInput").addEventListener("keydown",e=>{
+if(e.key==="Enter") openLink()
 })
+
+/* typewriter placeholder */
+
+let examples=[
+"google.com",
+"youtube.com",
+"apple.com",
+"github.com",
+"openai.com"
+]
+
+let exampleIndex=0
+let charIndex=0
+let deleting=false
+let input=document.getElementById("urlInput")
+
+function typeEffect(){
+
+let text=examples[exampleIndex]
+
+if(!deleting){
+charIndex++
+}else{
+charIndex--
+}
+
+input.placeholder=text.substring(0,charIndex)
+
+if(!deleting && charIndex===text.length){
+deleting=true
+setTimeout(typeEffect,1200)
+return
+}
+
+if(deleting && charIndex===0){
+deleting=false
+exampleIndex=(exampleIndex+1)%examples.length
+}
+
+setTimeout(typeEffect,deleting?40:80)
+
+}
+
+typeEffect()
+
+/* interactive particle background */
+
+const canvas=document.getElementById("bg")
+const ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth
+canvas.height=window.innerHeight
+
+let mouse={x:null,y:null}
+
+window.addEventListener("mousemove",e=>{
+mouse.x=e.x
+mouse.y=e.y
+})
+
+let particles=[]
+
+for(let i=0;i<80;i++){
+particles.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+vx:(Math.random()-.5)*.5,
+vy:(Math.random()-.5)*.5,
+size:2
+})
+}
+
+function animate(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+particles.forEach(p=>{
+
+p.x+=p.vx
+p.y+=p.vy
+
+if(p.x<0||p.x>canvas.width) p.vx*=-1
+if(p.y<0||p.y>canvas.height) p.vy*=-1
+
+if(mouse.x){
+let dx=mouse.x-p.x
+let dy=mouse.y-p.y
+let dist=Math.sqrt(dx*dx+dy*dy)
+
+if(dist<120){
+p.x-=dx*.01
+p.y-=dy*.01
+}
+}
+
+ctx.beginPath()
+ctx.arc(p.x,p.y,p.size,0,Math.PI*2)
+ctx.fillStyle="rgba(255,255,255,.5)"
+ctx.fill()
+
+})
+
+requestAnimationFrame(animate)
+
+}
+
+animate()
 
 </script>
 
