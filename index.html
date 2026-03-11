@@ -141,7 +141,7 @@ z-index:2;
 }
 
 .credit a{
-color:white;
+color:#3b82f6;
 text-decoration:none;
 font-weight:600;
 }
@@ -150,32 +150,32 @@ font-weight:600;
 text-decoration:underline;
 }
 
-/* mobile improvements */
+/* mobile adjustments */
 
 @media (max-width:600px){
 
 .container{
-width:95vw;
-padding:35px 25px;
+width:88vw;
+padding:28px 22px;
 }
 
 h1{
-font-size:28px;
+font-size:24px;
 }
 
 input{
-font-size:17px;
-padding:18px;
+font-size:16px;
+padding:15px;
 }
 
 button{
-font-size:17px;
-padding:18px;
+font-size:16px;
+padding:15px;
 }
 
 .option{
-padding:18px;
-font-size:16px;
+padding:15px;
+font-size:15px;
 }
 
 }
@@ -217,8 +217,6 @@ Same Window
 
 <script>
 
-/* mode toggle */
-
 let mode="newtab"
 
 document.querySelectorAll(".option").forEach(option=>{
@@ -228,8 +226,6 @@ option.classList.add("active")
 mode=option.dataset.mode
 }
 })
-
-/* open link */
 
 function openLink(){
 
@@ -253,8 +249,6 @@ window.location.href=url
 document.getElementById("urlInput").addEventListener("keydown",e=>{
 if(e.key==="Enter") openLink()
 })
-
-/* typewriter placeholder */
 
 let examples=[
 "google.com",
@@ -297,8 +291,6 @@ setTimeout(typeEffect,deleting?40:80)
 }
 
 typeEffect()
-
-/* interactive particle background */
 
 const canvas=document.getElementById("bg")
 const ctx=canvas.getContext("2d")
